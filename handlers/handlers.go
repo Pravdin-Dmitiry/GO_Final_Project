@@ -34,6 +34,7 @@ func (h *Handlers) AddTask() http.HandlerFunc {
 			response := map[string]interface{}{
 				"error": err,
 			}
+			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(response)
 			return
 		}
@@ -42,6 +43,7 @@ func (h *Handlers) AddTask() http.HandlerFunc {
 			response := map[string]interface{}{
 				"error": err,
 			}
+			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(response)
 			return
 		}
@@ -50,6 +52,7 @@ func (h *Handlers) AddTask() http.HandlerFunc {
 			response := map[string]interface{}{
 				"error": err,
 			}
+			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(response)
 			return
 		}
@@ -58,6 +61,7 @@ func (h *Handlers) AddTask() http.HandlerFunc {
 			response := map[string]interface{}{
 				"error": err,
 			}
+			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(response)
 			return
 		}
@@ -75,8 +79,9 @@ func (h *Handlers) ChangeTask() http.HandlerFunc {
 		err := json.NewDecoder(r.Body).Decode(&task)
 		if err != nil {
 			response := map[string]interface{}{
-				"error": "Ошибка десериализации JSON",
+				"error": "Deserialization error JSON",
 			}
+			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(response)
 			return
 		}
@@ -93,6 +98,7 @@ func (h *Handlers) ChangeTask() http.HandlerFunc {
 			response := map[string]interface{}{
 				"error": err,
 			}
+			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(response)
 			return
 		}
@@ -101,6 +107,7 @@ func (h *Handlers) ChangeTask() http.HandlerFunc {
 			response := map[string]interface{}{
 				"error": err,
 			}
+			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(response)
 			return
 		}
@@ -134,7 +141,7 @@ func (h *Handlers) GetTask() http.HandlerFunc {
 		id := r.FormValue("id")
 		if id == "" {
 			response := map[string]interface{}{
-				"error": "Не указан идентификатор",
+				"error": "No identifier specified",
 			}
 			json.NewEncoder(w).Encode(response)
 			return
@@ -157,19 +164,19 @@ func (h *Handlers) TaskDone() http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		id := r.FormValue("id")
 		if id == "" {
-			http.Error(w, `{"error": "Не указан индентификатор"}`, http.StatusBadRequest)
+			http.Error(w, `{"error": "No identifier specified"}`, http.StatusBadRequest)
 			return
 		}
 		task, err := h.TaskStorage.Findtask(id)
 		if err != "" {
-			http.Error(w, `{"error": "Задача не найдена"}`, http.StatusInternalServerError)
+			http.Error(w, `{"error": "Task not found"}`, http.StatusInternalServerError)
 			return
 		}
 		if task.Repeat == "" {
 			// Удаляем одноразовую задачу
 			err = h.TaskStorage.DeleteQuery(id)
 			if err != "" {
-				http.Error(w, `{"error": "Ошибка удаления задачи"}`, http.StatusInternalServerError)
+				http.Error(w, `{"error": "Error deleting task"}`, http.StatusInternalServerError)
 				return
 			}
 		} else {
@@ -178,14 +185,14 @@ func (h *Handlers) TaskDone() http.HandlerFunc {
 			timeNow := now.Format(ParseDate)
 			date, errnotstr := nextdate.CalcNextDate(timeNow, task.Date, task.Repeat)
 			if errnotstr != nil {
-				http.Error(w, `{"error": "Ошибка вычисления следующей даты"}`, http.StatusInternalServerError)
+				http.Error(w, `{"error": "Error calculating next date"}`, http.StatusInternalServerError)
 				return
 			}
 
 			// Обновляем дату задачи
 			err = h.TaskStorage.Updatetask(date, id)
 			if err != "" {
-				http.Error(w, `{"error": "Ошибка обновления задачи"}`, http.StatusInternalServerError)
+				http.Error(w, `{"error": "Task update error"}`, http.StatusInternalServerError)
 				return
 			}
 		}
@@ -199,12 +206,12 @@ func (h *Handlers) DeleteTask() http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		id := r.URL.Query().Get("id")
 		if id == "" {
-			http.Error(w, `{"error": "Не указан индентификатор"}`, http.StatusInternalServerError)
+			http.Error(w, `{"error": "No identifier specified"}`, http.StatusInternalServerError)
 			return
 		}
 		err := h.TaskStorage.DeleteQuery(id)
 		if err != "" {
-			http.Error(w, `{"error": "Ошибка удаления задачи"}`, http.StatusInternalServerError)
+			http.Error(w, `{"error": "Error deleting task"}`, http.StatusInternalServerError)
 			return
 		}
 		json.NewEncoder(w).Encode(map[string]interface{}{})
@@ -220,12 +227,12 @@ func (db *Handlers) NextDate() http.HandlerFunc {
 		repeat := r.FormValue("repeat")
 		//проверка корректности полученных данных
 		if repeat == "" || now == "" || date == "" {
-			http.Error(w, "Указаны некорректные данные в запросе", http.StatusBadRequest)
+			http.Error(w, "Incorrect data specified in the request", http.StatusBadRequest)
 			return
 		}
 		nextdate, err := nextdate.CalcNextDate(now, date, repeat)
 		if err != nil {
-			http.Error(w, "Указаны некорректные данные в запросе", http.StatusBadRequest)
+			http.Error(w, "Incorrect data specified in the request", http.StatusBadRequest)
 			return
 		}
 		w.Write([]byte(nextdate))
@@ -241,6 +248,7 @@ func (h *Handlers) ReceiveTasks() http.HandlerFunc {
 			response := map[string]interface{}{
 				"error": err,
 			}
+			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(response)
 			return
 		}
