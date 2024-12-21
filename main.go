@@ -42,7 +42,7 @@ func main() {
 	log.Printf("Сервер слушает порт %s", port)
 
 	if err := http.ListenAndServe(":"+port, r); err != nil {
-		fmt.Printf("Ошибка при запуске сервера: %s", err.Error())
+		log.Fatalf("Ошибка при запуске сервера: %v", err)
 		return
 	}
 }
