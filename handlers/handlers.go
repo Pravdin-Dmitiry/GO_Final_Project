@@ -242,7 +242,6 @@ func (db *Handlers) NextDate() http.HandlerFunc {
 func (h *Handlers) ReceiveTasks() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
 		tasks, err := h.TaskStorage.GetTasks()
 		if err != nil {
 			response := map[string]interface{}{
