@@ -61,7 +61,7 @@ func (db *DB) Addtasktodb(task task.Task) (int64, error) {
 	query := `INSERT INTO scheduler (date, title, comment, repeat) VALUES (?, ?, ?, ?)`
 	res, err := db.conn.Exec(query, task.Date, task.Title, task.Comment, task.Repeat)
 	if err != nil {
-		return 0, errors.New("Ошибка добавления задачи")
+		return 0, fmt.Errorf("Ошибка добавления задачи: %w", err)
 	}
 
 	id, err := res.LastInsertId()
